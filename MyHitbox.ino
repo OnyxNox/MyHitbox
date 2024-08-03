@@ -32,8 +32,6 @@
 #define EXTRA_2_BUTTON_ASCII  92  // (\) backslash
 #define EXTRA_3_BUTTON_ASCII   8  // backspace
 
-#define LOG_THRESHOLD_MS 5000
-
 struct Button
 {
     unsigned int Pin;
@@ -61,60 +59,62 @@ Button buttons[15] =
     { EXTRA_3_BUTTON_PIN, EXTRA_3_BUTTON_ASCII, HIGH, HIGH },
 };
 
-unsigned int buttonsCount;
+const unsigned int buttonsCount = sizeof(buttons) / sizeof(buttons[0]);
 
-Button* upButtonPtr    = &buttons[0];
-Button* downButtonPtr  = &buttons[1];
-Button* leftButtonPtr  = &buttons[2];
-Button* rightButtonPtr = &buttons[3];
+Button* const UP_BUTTON_PTR    = &buttons[0];
+Button* const DOWN_BUTTON_PTR  = &buttons[1];
+Button* const LEFT_BUTTON_PTR  = &buttons[2];
+Button* const RIGHT_BUTTON_PTR = &buttons[3];
 
+unsigned int i;
 unsigned int tempLeftButtonState = HIGH;
 
 void setup()
 {
-    buttonsCount = sizeof(buttons) / sizeof(buttons[0]);
-
-    for (unsigned int i = 0; i < buttonsCount; ++i)
+    for (i = 0; i < buttonsCount; i++)
     {
         pinMode(buttons[i].Pin, INPUT_PULLUP);
     }
 
     Keyboard.begin();
-    Serial.begin(9600);
 }
 
 void loop()
 {
     // set all buttons current state
-    for (unsigned int i = 0; i < buttonsCount; i++)
+    for (i = 0; i < buttonsCount; i++)
     {
         buttons[i].State = digitalRead(buttons[i].Pin);
     }
 
     // vertical Simultaneous Opposing Cardinal Directions (SOCD) filter
-    downButtonPtr->State = downButtonPtr->State == LOW && upButtonPtr->State == HIGH ? LOW : HIGH;
+    DOWN_BUTTON_PTR->State = DOWN_BUTTON_PTR->State == LOW && UP_BUTTON_PTR->State == HIGH
+        ? LOW : HIGH;
 
     // horizontal SOCD filter
-    tempLeftButtonState = leftButtonPtr->State == LOW && rightButtonPtr->State == LOW
-        ? HIGH : leftButtonPtr->State;
-    rightButtonPtr->State = rightButtonPtr->State == LOW && leftButtonPtr->State == LOW
-        ? HIGH : rightButtonPtr->State;
-    leftButtonPtr->State = tempLeftButtonState;
+    tempLeftButtonState = LEFT_BUTTON_PTR->State == LOW && RIGHT_BUTTON_PTR->State == LOW
+        ? HIGH : LEFT_BUTTON_PTR->State;
+    RIGHT_BUTTON_PTR->State = RIGHT_BUTTON_PTR->State == LOW && LEFT_BUTTON_PTR->State == LOW
+        ? HIGH : RIGHT_BUTTON_PTR->State;
+    LEFT_BUTTON_PTR->State = tempLeftButtonState;
 
-    for (unsigned int i = 0; i < buttonsCount; i++)
+    for (i = 0; i < buttonsCount; i++)
     {
-        if (buttons[i].State == LOW && buttons[i].State != buttons[i].PreviousState)
+        if (buttons[i].State != buttons[i].PreviousState)
         {
-            Keyboard.press(buttons[i].AsciiOutput);
-        }
-        else if (buttons[i].State == HIGH)
-        {
-            Keyboard.release(buttons[i].AsciiOutput);
+            if (buttons[i].State == LOW)
+            {
+                Keyboard.press(buttons[i].AsciiOutput);
+            }
+            else
+            {
+                Keyboard.release(buttons[i].AsciiOutput);
+            }
         }
     }
 
     // set all buttons previous state
-    for (unsigned int i = 0; i < buttonsCount; i++)
+    for (i = 0; i < buttonsCount; i++)
     {
         buttons[i].PreviousState = buttons[i].State;
     }

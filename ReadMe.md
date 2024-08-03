@@ -3,8 +3,12 @@
 --- | --- | ---
 ![](images/Open.jpg) | ![](images/Front.jpg) | ![](images/Back.jpg)
 
+## Features
+- Simultaneous Opposing Cardinal Directions (SOCD) filtering that prioritizes up over down on the vertical axis and is neutral when both left and right are being pressed.
+
 ## Hardware Used
 - [1x] Arduino Pro Micro
+    - Secured to the back of the 3D print using double-sided tape.
 - [18x] 3 x 8 mm round magnets
 - [15x] Kailh Choc Low Profile Switches (v1)
 
@@ -19,13 +23,12 @@ Printed on a Prusa MK4 which has a print volume of 250 x 210 x 220 mm. Total pri
 The steps below are for flashing firmware to an Arduino Pro Micro (Arduino Micro).
 
 1. Download latest [QMK Toolbox](https://github.com/qmk/qmk_toolbox/releases).
-1. Run **QMK Toolbox** as administrator.
-1. Install necessary drivers by navigating to **Tools** > **Install Drivers...**.
-1. Restart **QMK toolbox**; doesn't have to be as administrator.
+1. Open **QMK Toolbox**.
 1. Ensure that the correct **MCU (AVR only)** is selected. **Example:** ATmega32U4
 1. Click on the **Open** button and select the `MyHitbox.v1.hex` file.
 1. Check the **Auto-Flash** checkbox.
-1. Reset the board twice in rapid succession to enter the bootloader. 
+1. Reset the board twice in rapid succession to enter the bootloader.
+    - I found it may take a few tries to successfully flash the firmware due to the Caterina bootloader.
 
 ## Development
 - Firmware was developed and built using [Arduino IDE](https://www.arduino.cc/en/software).
